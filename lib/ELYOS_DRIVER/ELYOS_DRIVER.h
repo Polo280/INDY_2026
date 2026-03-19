@@ -21,6 +21,8 @@ class ELYOS_DRIVER {
         InlineCurrentSense *current_sense;
         // Change motor parameters during tunning easily 
         Commander *commander;
+        // Low pass filter for throttle
+        LowPassFilter throttle_lpf = LowPassFilter(0.02f);
 
     public:
         // For ISR

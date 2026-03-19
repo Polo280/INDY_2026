@@ -32,18 +32,18 @@
     constexpr int POLE_PAIRS {5};
     constexpr float ZERO_ALIGN_VALUE {5.24};
     // Missing adjust 
-    constexpr float PHASE_RESISTANCE {0.062f};
-    constexpr float KV_RATING        {100.0f};
+    constexpr float PHASE_RESISTANCE {0.124f};
+    constexpr float KV_RATING        {70.0f};
     // Safety values
-    constexpr float VOLTAGE_LIMIT {24.0f};
-    constexpr float CURRENT_LIMIT {3.0f};
+    constexpr float VOLTAGE_LIMIT {4.0f};
+    constexpr float CURRENT_LIMIT {2.0f};   // Iq is higher than the DC current flowing from battery approx Idc = 0.8Iq
     // Controller Iq gains
-    constexpr float IQ_KP {4.0f};
-    constexpr float IQ_KI {200.0f};
+    constexpr float IQ_KP {0.2f};
+    constexpr float IQ_KI {20.0f};
     constexpr float IQ_KD {0.0f};
     // Controller Id gains
-    constexpr float ID_KP {3.0f};
-    constexpr float ID_KI {200.0f};
+    constexpr float ID_KP {0.1f};
+    constexpr float ID_KI {10.0f};
     constexpr float ID_KD {0.0f};
     // Filter time constants (TF)
     constexpr float IQ_TF {0.1f};
