@@ -11,10 +11,9 @@ int main(){
   driver.driver_Init();
 
   while(true){
-    // Make it more deterministic
+    // Deterministic loop
     uint32_t t0 = micros();
     driver.runFOC();
-    while(micros() - t0 < 50);   // 20 kHz loop
 
     // Blink LED
     if(millis() - blink_aux >= 500){

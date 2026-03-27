@@ -52,7 +52,7 @@ int ELYOS_DRIVER::driver_Init(){
                                 C_PHASE_HIGH_PIN, C_PHASE_LOW_PIN);
     
     // Sensors 
-    hall_sensor = new HallSensor(HALL_A_PIN, HALL_C_PIN, HALL_B_PIN, POLE_PAIRS);
+    hall_sensor = new HallSensor(HALL_A_PIN, HALL_B_PIN, HALL_C_PIN, POLE_PAIRS);
     current_sense = new InlineCurrentSense(SHUNT_VALUE, CURRENT_SENSOR_GAIN, CURRENT_SENSE_A_PIN,
                                            CURRENT_SENSE_B_PIN, CURRENT_SENSE_C_PIN);
 
@@ -78,7 +78,7 @@ int ELYOS_DRIVER::driver_Init(){
 
     // Driver init
     driver->voltage_power_supply = SUPPLY_VOLTAGE;
-    driver->pwm_frequency = 20000;
+    driver->pwm_frequency = 30000;
 
     // Check if init is successful
     if(!driver->init()){
@@ -91,7 +91,7 @@ int ELYOS_DRIVER::driver_Init(){
     if(!current_sense->init()){
         return ELYOS_DRIVER_ERROR;
     }
-    // motor->linkCurrentSense(this->current_sense);
+    motor->linkCurrentSense(this->current_sense);
 
     // Safety 
     motor->voltage_limit = VOLTAGE_LIMIT;
@@ -107,10 +107,11 @@ int ELYOS_DRIVER::driver_Init(){
     // Monitor data
     this->motor->useMonitoring(Serial);
     this->motor->monitor_downsample = 100;
-    this->motor->monitor_variables = _MON_TARGET |_MON_CURR_Q | _MON_CURR_D;
+    // this->motor->monitor_variables = _MON_TARGET |_MON_CURR_Q | _MON_CURR_D;
+    this->motor->monitor_variables = _MON_ANGLE;
 
     ///// TUNE THIS
-    // motor->zero_electric_angle = ZERO_ALIGN_VALUE;
+    motor->zero_electric_angle = ZERO_ALIGN_VALUE;
     motor->sensor_direction = Direction::CW;
 
     // Init Field Oriented Controller
@@ -126,11 +127,13 @@ int ELYOS_DRIVER::driver_Init(){
 
 
 int ELYOS_DRIVER::control_Init(){
-    // this->motor->torque_controller = TorqueControlType::foc_current;
-    // this->motor->controller = MotionControlType::torque;
+    this->motor->torque_controller = TorqueControlType::foc_current;
+    this->motor->controller = MotionControlType::torque;
+    this->motor->foc_modulation = FOCModulationType::SpaceVectorPWM;
+    // this->motor->velocity_limit = 5;
 
-    this->motor->torque_controller = TorqueControlType::voltage;
-    this->motor->controller = MotionControlType::velocity_openloop;
+    // this->motor->torque_controller = TorqueControlType::voltage;
+    // this->motor->controller = MotionControlType::velocity_openloop;
 
     // Establish PID gains direct component 
     this->motor->PID_current_d.P = ID_KP;
@@ -158,8 +161,8 @@ void ELYOS_DRIVER::runFOC(){
 
     current_cmd = throttle_lpf(current_cmd);
 
-    // motor->target = current_cmd; 
-    motor->target += 0.002f;   // slow electrical angle ramp
+    motor->target = current_cmd; 
+    // motor->target += 0.002f;   // slow electrical angle ramp
 
     this->motor->move();
     this->motor->monitor();

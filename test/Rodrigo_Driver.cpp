@@ -1,7 +1,8 @@
 #include <SimpleFOC.h>
 
+
 // ---------------- MOTOR ----------------
-BLDCMotor motor = BLDCMotor(15, 0.2, 50.0);
+BLDCMotor motor = BLDCMotor(15, 0.124, 70.0);
 
 // ---------------- DRIVER ----------------
 BLDCDriver6PWM driver = BLDCDriver6PWM(4, 33, 6, 9, 36, 37);
@@ -41,7 +42,7 @@ void setup() {
   motor.linkSensor(&sensor);
 
   // ---------------- DRIVER INIT ----------------
-  driver.voltage_power_supply = 48;
+  driver.voltage_power_supply = 24;
   driver.pwm_frequency = 30000;
 
   if(!driver.init()){
@@ -59,11 +60,12 @@ void setup() {
   motor.linkCurrentSense(&current_sense);
 
   // ---------------- SAFETY LIMITS ----------------
-  motor.voltage_limit = 48;   // start conservative
+  motor.voltage_limit = 24;   // start conservative
   motor.current_limit = 15;
 
   // ---------------- CONTROL MODE ----------------
   motor.torque_controller = TorqueControlType::foc_current;
+  motor.foc_modulation = FOCModulationType::SpaceVectorPWM;
   motor.controller = MotionControlType::torque;
 
   // ---------------- STABLE CURRENT PI ----------------
