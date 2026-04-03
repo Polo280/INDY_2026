@@ -16,11 +16,17 @@ typedef struct {
 class ELYOS_DRIVER {
     protected:
         // Simple FOC handlers 
-        BLDCMotor *motor;
-        BLDCDriver6PWM *driver;
-        InlineCurrentSense *current_sense;
+        BLDCMotor motor{POLE_PAIRS, PHASE_RESISTANCE, KV_RATING};
+        
+        BLDCDriver6PWM driver{A_PHASE_HIGH_PIN, A_PHASE_LOW_PIN,
+                             B_PHASE_HIGH_PIN, B_PHASE_LOW_PIN,
+                             C_PHASE_HIGH_PIN, C_PHASE_LOW_PIN};
+
+        InlineCurrentSense current_sense{SHUNT_VALUE, CURRENT_SENSOR_GAIN, CURRENT_SENSE_A_PIN,
+                                          CURRENT_SENSE_B_PIN, CURRENT_SENSE_C_PIN};
+
         // Change motor parameters during tunning easily 
-        Commander *commander;
+        Commander commander{Serial};
         // Low pass filter for throttle
         LowPassFilter throttle_lpf = LowPassFilter(0.02f);
 
@@ -28,6 +34,7 @@ class ELYOS_DRIVER {
         // For ISR
         HallSensor *hall_sensor;
 
+        ELYOS_DRIVER();
         int driver_Init();
         int control_Init();
         void runFOC();

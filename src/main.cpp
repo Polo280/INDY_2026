@@ -11,8 +11,6 @@ int main(){
   driver.driver_Init();
 
   while(true){
-    // Deterministic loop
-    uint32_t t0 = micros();
     driver.runFOC();
 
     // Blink LED
