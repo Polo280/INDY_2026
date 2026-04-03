@@ -9,18 +9,18 @@
     constexpr int POLE_PAIRS {15};
     constexpr float ZERO_ALIGN_VALUE {5.24f};
     // Missing adjust 
-    constexpr float PHASE_RESISTANCE {0.4f};
+    constexpr float PHASE_RESISTANCE {0.1f};
     constexpr float KV_RATING        {50.0f};
     // Safety values
-    constexpr float VOLTAGE_LIMIT {15.0f};
+    constexpr float VOLTAGE_LIMIT {18.0f};
     constexpr float CURRENT_LIMIT {8.0f};
     // Controller Iq gains
-    constexpr float IQ_KP {6.0f};
-    constexpr float IQ_KI {30.0f};
+    constexpr float IQ_KP {0.1f};
+    constexpr float IQ_KI {0.0f};
     constexpr float IQ_KD {0.0f};
     // Controller Id gains
-    constexpr float ID_KP {3.0f};
-    constexpr float ID_KI {8.0f};
+    constexpr float ID_KP {0.1f};
+    constexpr float ID_KI {0.0f};
     constexpr float ID_KD {0.0f};
     // Filter time constants (TF)
     constexpr float IQ_TF {0.05f};

@@ -2,6 +2,9 @@
 #include "Pinout.h"
 #include "FOC_Parameters.h"
 #include <SimpleFOC.h>
+#include "smoothing/SmoothingSensor.h"
+
+// Telemetry and logging
 #include "Telemetry_Manager.h"
 #include "BLDC_Logger.h"
 
@@ -33,6 +36,7 @@ class ELYOS_DRIVER {
     public:
         // For ISR
         HallSensor *hall_sensor;
+        SmoothingSensor *smooth_sensor;
 
         ELYOS_DRIVER();
         int driver_Init();

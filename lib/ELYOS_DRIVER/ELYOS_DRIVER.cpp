@@ -10,7 +10,8 @@ ELYOS_DRIVER::ELYOS_DRIVER() : motor(POLE_PAIRS, PHASE_RESISTANCE, KV_RATING),
                                current_sense(SHUNT_VALUE, CURRENT_SENSOR_GAIN, 
                                             CURRENT_SENSE_A_PIN, CURRENT_SENSE_B_PIN, CURRENT_SENSE_C_PIN),
                                commander(Serial),
-                               hall_sensor(nullptr) {
+                               hall_sensor(nullptr),
+                               smooth_sensor(nullptr){
 }
 
 ////////// HALL CALLLBACKS //////////
@@ -79,7 +80,11 @@ int ELYOS_DRIVER::driver_Init(){
     // Hall sensor 
     hall_sensor->init();
     hall_sensor->enableInterrupts(hall_A_Handle, hall_B_Handle, hall_C_Handle);
-    motor.linkSensor(hall_sensor);
+    // motor.linkSensor(hall_sensor);
+
+    // Smoothing sensor (optional, can be used for better angle estimation with hall sensors)
+    smooth_sensor = new SmoothingSensor(*hall_sensor, motor);
+    motor.linkSensor(smooth_sensor);
 
     // Driver init
     driver.voltage_power_supply = SUPPLY_VOLTAGE;
@@ -115,16 +120,17 @@ int ELYOS_DRIVER::driver_Init(){
     motor.useMonitoring(Serial);
     motor.monitor_downsample = 100;
     motor.monitor_variables = _MON_TARGET |_MON_CURR_Q | _MON_CURR_D;
+    // motor.monitor_variables = _MON_ANGLE;
 
     ///// TUNE THIS
-    motor.zero_electric_angle = 5.24f;
+    motor.zero_electric_angle = ZERO_ALIGN_VALUE;
     motor.sensor_direction = Direction::CW;
 
     // Init Field Oriented Controller
     if(!motor.initFOC()){
         return ELYOS_DRIVER_ERROR;
     }
-
+    
     // Safe startup
     motor.target = 0.0f;
     return ELYOS_DRIVER_OK;
@@ -140,15 +146,17 @@ int ELYOS_DRIVER::control_Init(){
     motor.PID_current_d.P = ID_KP;
     motor.PID_current_d.I = ID_KI;
     motor.PID_current_d.D = ID_KD;
+    motor.PID_current_d.output_ramp = 300;   // Limit the rate of change of Id to avoid big spikes in current during sudden throttle changes, adjust as needed
+
 
     // Establish PID gains quadrature component 
     motor.PID_current_q.P = IQ_KP;
     motor.PID_current_q.I = IQ_KI;
     motor.PID_current_q.D = IQ_KD;
-    motor.PID_current_d.output_ramp = 300;   // Limit the rate of change of Id to avoid big spikes in current during sudden throttle changes, adjust as needed
+    motor.PID_current_q.output_ramp = 300;   // This is in A/s
 
     // Low pass filter 
-    motor.LPF_current_q.Tf = IQ_TF;   // Small Tf = fast response, large Tf = smooth, laggy
+    motor.LPF_current_q.Tf = IQ_TF;          // Small Tf = fast response, large Tf = smooth, laggy
     motor.LPF_current_d.Tf = ID_TF;
 
     return ELYOS_DRIVER_OK;
