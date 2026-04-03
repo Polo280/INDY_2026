@@ -17,7 +17,7 @@ class ELYOS_DRIVER {
     protected:
         // Simple FOC handlers 
         BLDCMotor motor{POLE_PAIRS, PHASE_RESISTANCE, KV_RATING};
-        
+
         BLDCDriver6PWM driver{A_PHASE_HIGH_PIN, A_PHASE_LOW_PIN,
                              B_PHASE_HIGH_PIN, B_PHASE_LOW_PIN,
                              C_PHASE_HIGH_PIN, C_PHASE_LOW_PIN};
@@ -49,4 +49,7 @@ class ELYOS_DRIVER {
         void cmd_set_Iq_P(char* cmd);
         void cmd_set_Iq_I(char* cmd);
         void cmd_set_Iq_D(char* cmd);
+
+        // Target command
+        void cmd_set_target(char* cmd);
 };

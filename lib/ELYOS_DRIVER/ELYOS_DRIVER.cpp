@@ -47,6 +47,10 @@ void onIqIWrapper(char* cmd){
     if(elyos_instance) elyos_instance->cmd_set_Iq_I(cmd);
 }
 
+void onTargetWrapper(char* cmd){
+    if(elyos_instance) elyos_instance->cmd_set_target(cmd);
+}
+
 //////////////////////////////////////
 
 
@@ -66,6 +70,7 @@ int ELYOS_DRIVER::driver_Init(){
     commander.add('b', onIdIWrapper, "Id I");
     commander.add('c', onIqPWrapper, "Iq P");
     commander.add('d', onIqIWrapper, "Iq I");
+    commander.add('t', onTargetWrapper, "Target");
 
     // Throttle 
     pinMode(THROTTLE_PIN, INPUT);
@@ -92,7 +97,7 @@ int ELYOS_DRIVER::driver_Init(){
         return ELYOS_DRIVER_ERROR;
     }
     // Skip current sense align 
-    // current_sense.skip_align = true;
+    current_sense.skip_align = true;
     motor.linkCurrentSense(&current_sense);
 
     // Safety 
@@ -129,7 +134,7 @@ int ELYOS_DRIVER::driver_Init(){
 int ELYOS_DRIVER::control_Init(){
     motor.torque_controller = TorqueControlType::foc_current;
     motor.controller = MotionControlType::torque;
-    // motor.foc_modulation = FOCModulationType::SpaceVectorPWM;
+    motor.foc_modulation = FOCModulationType::SpaceVectorPWM;
 
     // Establish PID gains direct component 
     motor.PID_current_d.P = ID_KP;
@@ -140,6 +145,7 @@ int ELYOS_DRIVER::control_Init(){
     motor.PID_current_q.P = IQ_KP;
     motor.PID_current_q.I = IQ_KI;
     motor.PID_current_q.D = IQ_KD;
+    motor.PID_current_d.output_ramp = 300;   // Limit the rate of change of Id to avoid big spikes in current during sudden throttle changes, adjust as needed
 
     // Low pass filter 
     motor.LPF_current_q.Tf = IQ_TF;   // Small Tf = fast response, large Tf = smooth, laggy
@@ -152,12 +158,10 @@ int ELYOS_DRIVER::control_Init(){
 void ELYOS_DRIVER::runFOC(){
     motor.loopFOC();
 
-    motor.target = 3.0f;
-
     // Move
     motor.move();
-    // motor.monitor();
-    // commander.run();
+    motor.monitor();
+    commander.run();
 }
 
 
@@ -206,5 +210,13 @@ void ELYOS_DRIVER::cmd_set_Iq_D(char* cmd){
     float val = atof(cmd);
     motor.PID_current_q.D = val;
     Serial.print("Iq D set to ");
+    Serial.println(val);
+}
+
+/////// SET MOTOR TARGET
+void ELYOS_DRIVER::cmd_set_target(char* cmd){
+    float val = atof(cmd);
+    motor.target = val;
+    Serial.print("Target set to ");
     Serial.println(val);
 }
