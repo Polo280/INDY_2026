@@ -12,15 +12,15 @@
     constexpr float PHASE_RESISTANCE {0.1f};
     constexpr float KV_RATING        {50.0f};
     // Safety values
-    constexpr float VOLTAGE_LIMIT {18.0f};
-    constexpr float CURRENT_LIMIT {8.0f};
+    constexpr float VOLTAGE_LIMIT {24.0f};
+    constexpr float CURRENT_LIMIT {18.0f};
     // Controller Iq gains
-    constexpr float IQ_KP {0.1f};
-    constexpr float IQ_KI {0.0f};
+    constexpr float IQ_KP {1.6f};
+    constexpr float IQ_KI {25.0f};
     constexpr float IQ_KD {0.0f};
     // Controller Id gains
-    constexpr float ID_KP {0.1f};
-    constexpr float ID_KI {0.0f};
+    constexpr float ID_KP {1.2f};
+    constexpr float ID_KI {20.0f};
     constexpr float ID_KD {0.0f};
     // Filter time constants (TF)
     constexpr float IQ_TF {0.05f};
@@ -55,4 +55,4 @@ constexpr float SHUNT_VALUE       {0.005f};
 constexpr int CURRENT_SENSOR_GAIN {20};
 
 // PWM parameters
-constexpr long PWM_FREQUENCY {30000};
+constexpr long PWM_FREQUENCY {20000};

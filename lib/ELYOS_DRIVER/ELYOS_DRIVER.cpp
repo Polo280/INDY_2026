@@ -10,6 +10,11 @@ ELYOS_DRIVER::ELYOS_DRIVER() : motor(POLE_PAIRS, PHASE_RESISTANCE, KV_RATING),
                                current_sense(SHUNT_VALUE, CURRENT_SENSOR_GAIN, 
                                             CURRENT_SENSE_A_PIN, CURRENT_SENSE_B_PIN, CURRENT_SENSE_C_PIN),
                                commander(Serial),
+                               telemetry_vbus_mV(0),
+                               telemetry_ibus_mA(0),
+                               telemetry_rpm(0),
+                               telemetry_iq_mA(0),
+                               telemetry_id_mA(0),
                                hall_sensor(nullptr),
                                smooth_sensor(nullptr){
 }
@@ -63,9 +68,16 @@ int ELYOS_DRIVER::driver_Init(){
     // Sensors 
     hall_sensor = new HallSensor(HALL_A_PIN, HALL_B_PIN, HALL_C_PIN, POLE_PAIRS);
 
-    // Commander and Serial initialization
+    // Commander, telemetry and Serial initialization
     Serial.begin(115200);
     SimpleFOCDebug::enable(&Serial);
+
+    telemetry.begin(Serial1);
+    telemetry.vbus_mV = &telemetry_vbus_mV;
+    telemetry.ibus_mA = &telemetry_ibus_mA;
+    telemetry.rpm = &telemetry_rpm;
+    telemetry.iq_mA = &telemetry_iq_mA;
+    telemetry.id_mA = &telemetry_id_mA;
 
     commander.add('a', onIdPWrapper, "Id P");
     commander.add('b', onIdIWrapper, "Id I");
@@ -83,7 +95,7 @@ int ELYOS_DRIVER::driver_Init(){
     // motor.linkSensor(hall_sensor);
 
     // Smoothing sensor (optional, can be used for better angle estimation with hall sensors)
-    smooth_sensor = new SmoothingSensor(*hall_sensor, motor);
+    smooth_sensor = new SmoothingSensor(*hall_sensor, motor);   // Smoothing lowers considerably motor vibrations
     motor.linkSensor(smooth_sensor);
 
     // Driver init
@@ -156,19 +168,40 @@ int ELYOS_DRIVER::control_Init(){
     motor.PID_current_q.output_ramp = 300;   // This is in A/s
 
     // Low pass filter 
-    motor.LPF_current_q.Tf = IQ_TF;          // Small Tf = fast response, large Tf = smooth, laggy
+    motor.LPF_current_q.Tf = IQ_TF;  // Small Tf = fast response, large Tf = smooth, laggy
     motor.LPF_current_d.Tf = ID_TF;
 
     return ELYOS_DRIVER_OK;
 }
 
 
+void ELYOS_DRIVER::calculateTelemetry(){
+    // Battery voltage 
+    telemetry_vbus_mV = static_cast<uint16_t>(driver.voltage_power_supply * 1000.0f);
+    telemetry_ibus_mA = static_cast<int32_t>(sqrt(motor.current.q * motor.current.q + motor.current.d * motor.current.d) * 1000.0f); // estimated DC current
+    telemetry_rpm = static_cast<int32_t>(motor.shaft_velocity * 60.0f / (2.0f * PI));
+    telemetry_iq_mA = static_cast<int16_t>(motor.current.q * 1000.0f);
+    telemetry_id_mA = static_cast<int16_t>(motor.current.d * 1000.0f);
+}
+
+
 void ELYOS_DRIVER::runFOC(){
     motor.loopFOC();
+
+    // static uint32_t last_print = 0;
+    // if (millis() - last_print > 50) {  // 20 Hz
+    //     last_print = millis();
+
+    //     Serial.print("RPM: ");
+    //     Serial.print(telemetry_rpm);
+    //     Serial.print(" | Ibus (mA): ");
+    //     Serial.println(telemetry_ibus_mA);
+    // }
 
     // Move
     motor.move();
     motor.monitor();
+    telemetry.process();
     commander.run();
 }
 

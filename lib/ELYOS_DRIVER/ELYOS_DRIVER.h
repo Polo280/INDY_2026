@@ -30,6 +30,13 @@ class ELYOS_DRIVER {
 
         // Change motor parameters during tunning easily 
         Commander commander{Serial};
+        TelemetryManager telemetry;
+        uint16_t telemetry_vbus_mV;
+        int32_t telemetry_ibus_mA;
+        int32_t telemetry_rpm;
+        int16_t telemetry_iq_mA;
+        int16_t telemetry_id_mA;
+
         // Low pass filter for throttle
         LowPassFilter throttle_lpf = LowPassFilter(0.02f);
 
@@ -41,7 +48,11 @@ class ELYOS_DRIVER {
         ELYOS_DRIVER();
         int driver_Init();
         int control_Init();
+        void ThrottleFOC_Init();
         void runFOC();
+
+        // Telemetry 
+        void calculateTelemetry();
 
         // Callbacks
         void do_Motor(char *cmd);
