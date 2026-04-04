@@ -25,6 +25,28 @@
     // Filter time constants (TF)
     constexpr float IQ_TF {0.05f};
     constexpr float ID_TF {0.05f};
+
+    // Throttle FOC parameters
+    constexpr float THROTTLE_FILTER_TAU {0.05f};    // Secs
+    constexpr float THROTTLE_DEADBAND {0.05f};      // Pedal input below this is ignored
+    constexpr float FAULT_LOW_MARGIN {20.0f};       // ADC counts below adcMin tolerated
+    constexpr float FAULT_HIGH_MARGIN {20.0f};      // ADC counts above adcMax tolerated
+    // Curve shaping
+    constexpr float THROTTLE_BLEND_LINEAR {0.40f};  // 0 = fully quadratic, 1 = fully linear
+    // Current limits 
+    constexpr float THROTTLE_IQ_MAX {CURRENT_LIMIT / 2.0f};       // Max current at full pedal
+    constexpr float THROTTLE_IQ_LAUNCH_MAX {12.0f};               // Speed-based derating
+    constexpr float THROTTLE_LAUNCH_SPEED_RAD_PER_SEC {8.0f};     // Below this speed, use launch current limit
+    constexpr float THROTTLE_SPEED_FOR_FULL_IQ {100.0f};          // Above this speed, full throttle current is available
+    // Rate limiting
+    constexpr float THROTTLE_IQ_RAMP_UP {30.0f};                  // A/s, how fast the current reference can rise, slower for smoother throttle response and efficiency
+    constexpr float THROTTLE_IQ_RAMP_DOWN {100.0f};               // Optional creep / stiction handling
+    constexpr bool  THROTTLE_ENABLE_MIN_START_CURRENT = false;    // If true, will inject a small minimum current when pedal is pressed beyond min start pedal to help overcome stiction at very low speeds
+    constexpr float THROTTLE_MIN_START_PEDAL = 0.08f;             // Pedal threshold to trigger minimum start current
+    constexpr float THROTTLE_MIN_START_CURRENT = 2.0f;            // Minimum current to inject when pedal exceeds min start pedal, adjust based on your motor and load to overcome stiction without causing excessive creep
+    // Safety behavior    
+    constexpr bool THROTTLE_CUT_TO_ZERO_ON_FAULT = true;          // If true, will immediately cut current to zero if a fault is detected on the pedal input (e.g. out of range ADC reading)
+
 #endif /* HUB_MOTOR */
 
 #ifdef KOFORD_MOTOR
@@ -48,7 +70,29 @@
     // Filter time constants (TF)
     constexpr float IQ_TF {0.01f};
     constexpr float ID_TF {0.01f};
+
+    // Throttle FOC parameters
+    constexpr float THROTTLE_FILTER_TAU {0.03f};    // Secs
+    constexpr float THROTTLE_DEADBAND {0.02f};      // Pedal input below this is ignored
+    constexpr float FAULT_LOW_MARGIN {20.0f};       // ADC counts below adcMin tolerated
+    constexpr float FAULT_HIGH_MARGIN {20.0f};      // ADC counts above adcMax tolerated
+    // Curve shaping
+    constexpr float THROTTLE_BLEND_LINEAR {0.30f};  // 0 = fully quadratic, 1 = fully linear
+    // Current limits 
+    constexpr float THROTTLE_IQ_MAX {CURRENT_LIMIT / 2.0f};     // Max current at full pedal
+    constexpr float THROTTLE_IQ_LAUNCH_MAX {8.0f};              // Speed-based derating
+    constexpr float THROTTLE_LAUNCH_SPEED_RAD_PER_SEC {8.0f};   // Below this speed, use launch current limit
+    constexpr float THROTTLE_SPEED_FOR_FULL_IQ {40.0f};         // Above this speed, full throttle current is available
+    // Rate limiting
+    constexpr float THROTTLE_IQ_RAMP_UP {80.0f};                // A/s, how fast the current reference can rise, slower for smoother throttle response and efficiency
+    constexpr float THROTTLE_IQ_RAMP_DOWN {180.0f};             // Optional creep / stiction handling
+    constexpr bool  THROTTLE_ENABLE_MIN_START_CURRENT = false;  // If true, will inject a small minimum current when pedal is pressed beyond min start pedal to help overcome stiction at very low speeds
+    constexpr float THROTTLE_MIN_START_PEDAL = 0.08f;           // Pedal threshold to trigger minimum start current
+    constexpr float THROTTLE_MIN_START_CURRENT = 2.0f;          // Minimum current to inject when pedal exceeds min start pedal, adjust based on your motor and load to overcome stiction without causing excessive creep
+    // Safety behavior    
+    constexpr bool THROTTLE_CUT_TO_ZERO_ON_FAULT = true;        // If true, will immediately cut current to zero if a fault is detected on the pedal input (e.g out of range ADC reading)
 #endif /* KOFORD_MOTOR */
+
 
 // Current sensing (inline) parameters 
 constexpr float SHUNT_VALUE       {0.005f};
@@ -56,3 +100,6 @@ constexpr int CURRENT_SENSOR_GAIN {20};
 
 // PWM parameters
 constexpr long PWM_FREQUENCY {20000};
+
+// Throttle common values
+constexpr int THROTTLE_RESOLUTION_BITS {12};

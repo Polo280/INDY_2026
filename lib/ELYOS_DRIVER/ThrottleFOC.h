@@ -1,51 +1,54 @@
 #pragma once
 #include <Arduino.h>
 #include <math.h>
+#include "FOC_Parameters.h"
+#include "Pinout.h"
 
 class ThrottleFOC {
 public:
   struct Config {
     // ---------- ADC / pedal ----------
-    uint8_t pedalPin = A0;
+    int pedalPin = THROTTLE_PIN;
     uint16_t adcMin = 200;          // calibrate!
     uint16_t adcMax = 3890;         // calibrate!
-    float deadband = 0.02f;         // 2% pedal dead zone
-    float faultLowMargin = 20.0f;   // ADC counts below adcMin tolerated
-    float faultHighMargin = 20.0f;  // ADC counts above adcMax tolerated
+    float deadband = THROTTLE_DEADBAND;  // % pedal dead zone
+    float faultLowMargin = FAULT_LOW_MARGIN;   // ADC counts below adcMin tolerated
+    float faultHighMargin = FAULT_HIGH_MARGIN;  // ADC counts above adcMax tolerated
 
     // ---------- Filtering ----------
     // pedal LPF time constant in seconds
-    float pedalFilterTau = 0.030f;  // 30 ms
+    float pedalFilterTau = THROTTLE_FILTER_TAU;  // 30 ms
 
     // ---------- Pedal shaping ----------
     // iq_norm = blendLinear * p + (1-blendLinear) * p^2
-    float blendLinear = 0.30f;
+    float blendLinear = THROTTLE_BLEND_LINEAR;
 
     // ---------- Current limits ----------
-    float iqMax = 30.0f;            // absolute allowed q-axis current [A]
-    float iqLaunchMax = 12.0f;      // lower current cap near zero speed [A]
-    float launchSpeedRadPerSec = 8.0f; // below this, use launch limit
+    float iqMax = THROTTLE_IQ_MAX;                                  // absolute allowed q-axis current [A]
+    float iqLaunchMax = THROTTLE_IQ_LAUNCH_MAX;                     // lower current cap near zero speed [A]
+    float launchSpeedRadPerSec = THROTTLE_LAUNCH_SPEED_RAD_PER_SEC; // below this, use launch limit
 
     // Optional speed-based derating
-    float speedForFullIq = 40.0f;   // rad/s where full iqMax becomes available
+    float speedForFullIq = THROTTLE_SPEED_FOR_FULL_IQ;   // rad/s where full iqMax becomes available
 
     // ---------- Rate limiting ----------
-    float iqRampUp = 80.0f;         // A/s, slower for efficiency
-    float iqRampDown = 180.0f;      // A/s, faster for safety/natural release
+    float iqRampUp = THROTTLE_IQ_RAMP_UP;        // A/s, slower for efficiency
+    float iqRampDown = THROTTLE_IQ_RAMP_DOWN;    // A/s, faster for safety/natural release
 
     // ---------- Optional creep / stiction ----------
-    bool enableMinStartCurrent = false;
-    float minStartPedal = 0.08f;    // if pedal exceeds this, optionally inject small current
-    float minStartCurrent = 2.0f;   // enough only to overcome stiction if needed
+    bool enableMinStartCurrent = THROTTLE_ENABLE_MIN_START_CURRENT;
+    float minStartPedal = THROTTLE_MIN_START_PEDAL;       // if pedal exceeds this, optionally inject small current
+    float minStartCurrent = THROTTLE_MIN_START_CURRENT;   // enough only to overcome stiction if needed
 
     // ---------- Safety behavior ----------
-    bool cutToZeroOnFault = true;
+    bool cutToZeroOnFault = THROTTLE_CUT_TO_ZERO_ON_FAULT;
   };
 
   explicit ThrottleFOC(const Config& cfg) : cfg_(cfg) {}
 
+
   void begin() {
-    analogReadResolution(12);  // Teensy 4.1 supports up to 12-bit ADC read setting
+    analogReadResolution(THROTTLE_RESOLUTION_BITS);  // Teensy 4.1 supports up to 12-bit ADC read setting
     pinMode(cfg_.pedalPin, INPUT);
     lastMicros_ = micros();
     pedalFilt_ = 0.0f;

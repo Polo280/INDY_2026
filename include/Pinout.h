@@ -1,4 +1,5 @@
 #pragma once 
+#include <Arduino.h>
 
 // Phase PWM signal pins 
 constexpr int A_PHASE_HIGH_PIN  {4};
@@ -19,4 +20,4 @@ constexpr int CURRENT_SENSE_B_PIN {27};
 constexpr int CURRENT_SENSE_C_PIN {38};
 
 // Throttle pin
-constexpr int THROTTLE_PIN {24};
+constexpr int THROTTLE_PIN {A10};

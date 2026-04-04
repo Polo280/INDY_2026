@@ -3,6 +3,7 @@
 #include "FOC_Parameters.h"
 #include <SimpleFOC.h>
 #include "smoothing/SmoothingSensor.h"
+#include "ThrottleFOC.h"
 
 // Telemetry and logging
 #include "Telemetry_Manager.h"
@@ -38,7 +39,10 @@ class ELYOS_DRIVER {
         int16_t telemetry_id_mA;
 
         // Low pass filter for throttle
-        LowPassFilter throttle_lpf = LowPassFilter(0.02f);
+        // LowPassFilter throttle_lpf = LowPassFilter(0.02f);
+
+        // Throttle FOC approach
+        ThrottleFOC throttle;
 
     public:
         // For ISR
