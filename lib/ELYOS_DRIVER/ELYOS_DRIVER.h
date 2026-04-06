@@ -34,6 +34,7 @@ class ELYOS_DRIVER {
         TelemetryManager telemetry;
         uint16_t telemetry_vbus_mV;
         int32_t telemetry_ibus_mA;
+        float telemetry_ibus_mA_filtered;
         int32_t telemetry_rpm;
         int16_t telemetry_iq_mA;
         int16_t telemetry_id_mA;

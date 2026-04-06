@@ -12,6 +12,7 @@ ELYOS_DRIVER::ELYOS_DRIVER() : motor(POLE_PAIRS, PHASE_RESISTANCE, KV_RATING),
                                commander(Serial),
                                telemetry_vbus_mV(0),
                                telemetry_ibus_mA(0),
+                               telemetry_ibus_mA_filtered(0.0f),
                                telemetry_rpm(0),
                                telemetry_iq_mA(0),
                                telemetry_id_mA(0),
@@ -180,12 +181,29 @@ int ELYOS_DRIVER::control_Init(){
 
 // This is not used yet 
 void ELYOS_DRIVER::calculateTelemetry(){
-    // Battery voltage 
-    telemetry_vbus_mV = static_cast<uint16_t>(driver.voltage_power_supply * 1000.0f);
-    telemetry_ibus_mA = static_cast<int32_t>(sqrt(motor.current.q * motor.current.q + motor.current.d * motor.current.d) * 1000.0f); // estimated DC current
-    telemetry_rpm = static_cast<int32_t>(motor.shaft_velocity * 60.0f / (2.0f * PI));
-    telemetry_iq_mA = static_cast<int16_t>(motor.current.q * 1000.0f);
-    telemetry_id_mA = static_cast<int16_t>(motor.current.d * 1000.0f);
+    uint16_t raw_vbus = analogRead(VBUS_SENSE_PIN);
+    float vbus = (raw_vbus / 4095.0f) * 60.9f;
+
+    telemetry_vbus_mV = (uint16_t)(vbus * 1000.0f);
+    telemetry_rpm = (int32_t)(motor.shaft_velocity * 60.0f / (2.0f * PI));
+
+    float Id = motor.current.d;
+    float Iq = motor.current.q;
+    float I_mag = sqrt(Id*Id + Iq*Iq);
+
+    float Ud = motor.voltage.d;
+    float Uq = motor.voltage.q;
+    float U_mag = sqrt(Ud*Ud + Uq*Uq);
+
+    float modulation = U_mag / 48.0f; // Assuming 48V supply, adjust if different
+
+    float raw_Idc = 0.75f * modulation * I_mag;
+    float raw_ibus_mA = raw_Idc * 1000.0f;
+
+    // One-pole low-pass filter on the DC current for telemetry
+    const float alpha = 0.9f; // 0.0 = very slow, 1.0 = no filtering
+    telemetry_ibus_mA_filtered += alpha * (raw_ibus_mA - telemetry_ibus_mA_filtered);
+    telemetry_ibus_mA = (int32_t)telemetry_ibus_mA_filtered;
 }
 
 
@@ -196,9 +214,20 @@ void ELYOS_DRIVER::runFOC(){
     // compute shaped/smoothed efficient iq command
     float iq_cmd = throttle.update(speed_rad_s);
 
+    // Calculate telemetry values
+    static uint32_t lastTelemetryTime = 0;
+    uint32_t now = millis();
+    if (now - lastTelemetryTime >= 100) { // Send telemetry every 100 ms
+        calculateTelemetry();
+        lastTelemetryTime = now;   
+        Serial.println(telemetry_ibus_mA); 
+    }
+    
+
     // Move
-    motor.move(iq_cmd);
-    motor.monitor();
+    // motor.move(iq_cmd);
+    motor.move();
+    // motor.monitor();
     telemetry.process();
     commander.run();
 }

@@ -12,8 +12,8 @@
     constexpr float PHASE_RESISTANCE {0.1f};
     constexpr float KV_RATING        {50.0f};
     // Safety values
-    constexpr float VOLTAGE_LIMIT {24.0f};
-    constexpr float CURRENT_LIMIT {18.0f};
+    constexpr float VOLTAGE_LIMIT {32.0f};
+    constexpr float CURRENT_LIMIT {35.0f};
     // Controller Iq gains
     constexpr float IQ_KP {1.6f};
     constexpr float IQ_KI {25.0f};
@@ -34,7 +34,7 @@
     // Curve shaping
     constexpr float THROTTLE_BLEND_LINEAR {0.40f};  // 0 = fully quadratic, 1 = fully linear
     // Current limits 
-    constexpr float THROTTLE_IQ_MAX {CURRENT_LIMIT / 2.0f};       // Max current at full pedal
+    constexpr float THROTTLE_IQ_MAX {CURRENT_LIMIT};       // Max current at full pedal
     constexpr float THROTTLE_IQ_LAUNCH_MAX {12.0f};               // Speed-based derating
     constexpr float THROTTLE_LAUNCH_SPEED_RAD_PER_SEC {8.0f};     // Below this speed, use launch current limit
     constexpr float THROTTLE_SPEED_FOR_FULL_IQ {100.0f};          // Above this speed, full throttle current is available

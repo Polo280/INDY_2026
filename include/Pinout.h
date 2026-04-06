@@ -19,5 +19,8 @@ constexpr int CURRENT_SENSE_A_PIN {26};
 constexpr int CURRENT_SENSE_B_PIN {27};
 constexpr int CURRENT_SENSE_C_PIN {38};
 
+// Battery voltage sensing
+constexpr int VBUS_SENSE_PIN {A17};  
+
 // Throttle pin
 constexpr int THROTTLE_PIN {A10};
