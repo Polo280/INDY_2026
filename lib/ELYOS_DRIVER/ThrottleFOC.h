@@ -11,6 +11,7 @@ public:
     int pedalPin = THROTTLE_PIN;
     uint16_t adcMin = 200;          // calibrate!
     uint16_t adcMax = 3890;         // calibrate!
+    uint16_t rawAdc_ = 0;
     float deadband = THROTTLE_DEADBAND;  // % pedal dead zone
     float faultLowMargin = FAULT_LOW_MARGIN;   // ADC counts below adcMin tolerated
     float faultHighMargin = FAULT_HIGH_MARGIN;  // ADC counts above adcMax tolerated
@@ -45,7 +46,7 @@ public:
   };
 
   explicit ThrottleFOC(const Config& cfg) : cfg_(cfg) {}
-
+  uint16_t getRaw() const { return cfg_.rawAdc_; }
 
   void begin() {
     analogReadResolution(THROTTLE_RESOLUTION_BITS);  // Teensy 4.1 supports up to 12-bit ADC read setting
@@ -69,6 +70,7 @@ public:
 
     // 1) Read pedal ADC
     uint16_t adc = analogRead(cfg_.pedalPin);
+    cfg_.rawAdc_ = adc;
 
     // 2) Range/fault check
     fault_ = isAdcFault(adc);

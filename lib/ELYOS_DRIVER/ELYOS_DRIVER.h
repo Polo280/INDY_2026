@@ -39,6 +39,8 @@ class ELYOS_DRIVER {
         int16_t telemetry_iq_mA;
         int16_t telemetry_id_mA;
 
+        TelemetryManager::foc_all_fast fast_data;
+
         // Low pass filter for throttle
         // LowPassFilter throttle_lpf = LowPassFilter(0.02f);
 
