@@ -4,7 +4,7 @@ void TelemetryManager::begin(HardwareSerial &port)
 {
     serial = &port;
 
-    // allFast = nullptr;
+    allFast = nullptr;
     // status  = nullptr;
 
     vbus_mV = nullptr;
@@ -124,9 +124,9 @@ void TelemetryManager::handleFrame(uint8_t *frame, uint8_t len)
     switch ((foc_uart_cmd_t)cmd)
     {
     case FOC_CMD_GET_ALL_FAST:
-        // if (allFast){
-        //     sendReply(cmd, (uint8_t*)allFast, 14);
-        // }
+        if (allFast){
+            sendReply(cmd, (uint8_t*)allFast, 14);
+        }
         break;
 
     case FOC_CMD_GET_STATUS:

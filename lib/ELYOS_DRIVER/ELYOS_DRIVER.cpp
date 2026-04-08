@@ -73,6 +73,7 @@ int ELYOS_DRIVER::driver_Init(){
     // Commander, telemetry and Serial initialization
     Serial.begin(115200);
     SimpleFOCDebug::enable(&Serial);
+    Serial1.begin(115200);  // must match ESP side
 
     telemetry.begin(Serial1);
     telemetry.vbus_mV = &telemetry_vbus_mV;
@@ -80,6 +81,7 @@ int ELYOS_DRIVER::driver_Init(){
     telemetry.rpm = &telemetry_rpm;
     telemetry.iq_mA = &telemetry_iq_mA;
     telemetry.id_mA = &telemetry_id_mA;
+    telemetry.allFast = &fast_data;
 
     commander.add('a', onIdPWrapper, "Id P");
     commander.add('b', onIdIWrapper, "Id I");
@@ -204,6 +206,12 @@ void ELYOS_DRIVER::calculateTelemetry(){
     const float alpha = 0.9f; // 0.0 = very slow, 1.0 = no filtering
     telemetry_ibus_mA_filtered += alpha * (raw_ibus_mA - telemetry_ibus_mA_filtered);
     telemetry_ibus_mA = (int32_t)telemetry_ibus_mA_filtered;
+
+    fast_data.vbus_mV      = telemetry_vbus_mV;
+    fast_data.ibus_mA      = telemetry_ibus_mA;
+    fast_data.rpm          = telemetry_rpm;
+    fast_data.throttle_raw = throttle.getRaw();
+    fast_data.fault_flags  = 0;
 }
 
 
