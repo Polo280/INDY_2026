@@ -228,14 +228,13 @@ void ELYOS_DRIVER::runFOC(){
     if (now - lastTelemetryTime >= 100) { // Send telemetry every 100 ms
         calculateTelemetry();
         lastTelemetryTime = now;   
-        Serial.println(telemetry_ibus_mA); 
+        // Serial.println(iq_cmd); 
     }
-    
 
     // Move
     // motor.move(iq_cmd);
     motor.move();
-    // motor.monitor();
+    motor.monitor();
     telemetry.process();
     commander.run();
 }

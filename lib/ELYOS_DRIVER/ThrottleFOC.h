@@ -9,8 +9,8 @@ public:
   struct Config {
     // ---------- ADC / pedal ----------
     int pedalPin = THROTTLE_PIN;
-    uint16_t adcMin = 200;          // calibrate!
-    uint16_t adcMax = 3890;         // calibrate!
+    uint16_t adcMin = 490;          // calibrate!
+    uint16_t adcMax = 2750;         // calibrate!
     uint16_t rawAdc_ = 0;
     float deadband = THROTTLE_DEADBAND;  // % pedal dead zone
     float faultLowMargin = FAULT_LOW_MARGIN;   // ADC counts below adcMin tolerated

@@ -12,8 +12,8 @@
     constexpr float PHASE_RESISTANCE {0.1f};
     constexpr float KV_RATING        {50.0f};
     // Safety values
-    constexpr float VOLTAGE_LIMIT {32.0f};
-    constexpr float CURRENT_LIMIT {35.0f};
+    constexpr float VOLTAGE_LIMIT {35.0f};
+    constexpr float CURRENT_LIMIT {45.0f};
     // Controller Iq gains
     constexpr float IQ_KP {1.6f};
     constexpr float IQ_KI {25.0f};
@@ -32,18 +32,18 @@
     constexpr float FAULT_LOW_MARGIN {20.0f};       // ADC counts below adcMin tolerated
     constexpr float FAULT_HIGH_MARGIN {20.0f};      // ADC counts above adcMax tolerated
     // Curve shaping
-    constexpr float THROTTLE_BLEND_LINEAR {0.40f};  // 0 = fully quadratic, 1 = fully linear
+    constexpr float THROTTLE_BLEND_LINEAR {0.3f};  // 0 = fully quadratic, 1 = fully linear
     // Current limits 
-    constexpr float THROTTLE_IQ_MAX {CURRENT_LIMIT};       // Max current at full pedal
-    constexpr float THROTTLE_IQ_LAUNCH_MAX {12.0f};               // Speed-based derating
-    constexpr float THROTTLE_LAUNCH_SPEED_RAD_PER_SEC {8.0f};     // Below this speed, use launch current limit
-    constexpr float THROTTLE_SPEED_FOR_FULL_IQ {100.0f};          // Above this speed, full throttle current is available
+    constexpr float THROTTLE_IQ_MAX {CURRENT_LIMIT};              // Max current at full pedal
+    constexpr float THROTTLE_IQ_LAUNCH_MAX {35.0f};               // Speed-based derating
+    constexpr float THROTTLE_LAUNCH_SPEED_RAD_PER_SEC {5.0f};     // Below this speed, use launch current limit
+    constexpr float THROTTLE_SPEED_FOR_FULL_IQ {80.0f};          // Above this speed, full throttle current is available
     // Rate limiting
-    constexpr float THROTTLE_IQ_RAMP_UP {30.0f};                  // A/s, how fast the current reference can rise, slower for smoother throttle response and efficiency
+    constexpr float THROTTLE_IQ_RAMP_UP {150.0f};                  // A/s, how fast the current reference can rise, slower for smoother throttle response and efficiency
     constexpr float THROTTLE_IQ_RAMP_DOWN {100.0f};               // Optional creep / stiction handling
-    constexpr bool  THROTTLE_ENABLE_MIN_START_CURRENT = false;    // If true, will inject a small minimum current when pedal is pressed beyond min start pedal to help overcome stiction at very low speeds
+    constexpr bool  THROTTLE_ENABLE_MIN_START_CURRENT = true;
+    constexpr float THROTTLE_MIN_START_CURRENT = 6.0f;
     constexpr float THROTTLE_MIN_START_PEDAL = 0.08f;             // Pedal threshold to trigger minimum start current
-    constexpr float THROTTLE_MIN_START_CURRENT = 2.0f;            // Minimum current to inject when pedal exceeds min start pedal, adjust based on your motor and load to overcome stiction without causing excessive creep
     // Safety behavior    
     constexpr bool THROTTLE_CUT_TO_ZERO_ON_FAULT = true;          // If true, will immediately cut current to zero if a fault is detected on the pedal input (e.g. out of range ADC reading)
 
