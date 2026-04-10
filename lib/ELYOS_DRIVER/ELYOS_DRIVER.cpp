@@ -166,13 +166,13 @@ int ELYOS_DRIVER::control_Init(){
     motor.PID_current_d.P = ID_KP;
     motor.PID_current_d.I = ID_KI;
     motor.PID_current_d.D = ID_KD;
-    motor.PID_current_d.output_ramp = 300;   // Limit the rate of change of Id to avoid big spikes in current during sudden throttle changes, adjust as needed
+    motor.PID_current_d.output_ramp = 250;   // Limit the rate of change of Id to avoid big spikes in current during sudden throttle changes, adjust as needed
 
     // Establish PID gains quadrature component 
     motor.PID_current_q.P = IQ_KP;
     motor.PID_current_q.I = IQ_KI;
     motor.PID_current_q.D = IQ_KD;
-    motor.PID_current_q.output_ramp = 300;   // This is in A/s
+    motor.PID_current_q.output_ramp = 150;   // This is in A/s
 
     // Low pass filter 
     motor.LPF_current_q.Tf = IQ_TF;          // Small Tf = fast response, large Tf = smooth, laggy
@@ -232,8 +232,8 @@ void ELYOS_DRIVER::runFOC(){
     }
 
     // Move
-    // motor.move(iq_cmd);
-    motor.move();
+    motor.move(iq_cmd);
+    // motor.move();
     motor.monitor();
     telemetry.process();
     commander.run();
